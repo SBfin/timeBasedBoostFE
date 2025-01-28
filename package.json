@@ -5,14 +5,21 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "ts-node --project tsconfig.json src/scripts/deployBoostTimeBased.ts"
   },
   "dependencies": {
+    "@boostxyz/sdk": "^5.5.0",
     "@rainbow-me/rainbowkit": "^2.2.3",
     "@tanstack/react-query": "^5.55.3",
+    "dotenv": "^16.4.7",
+    "ethers": "^5.7.2",
+    "i": "^0.3.7",
     "next": "^15.1.4",
+    "npm": "^11.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2",
     "viem": "2.21.55",
     "wagmi": "^2.14.7"
   },
