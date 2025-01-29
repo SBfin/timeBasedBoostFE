@@ -10,6 +10,7 @@ import { ERC20Abi } from '../ABI/ERC20';
 import { USDC_ADDRESS, FLEX_STAKER_ADDRESS } from '../constants/addresses';
 import { useEstimateGas } from 'wagmi';
 import { deployBoost } from '../utils/deployBoost';
+import { BoostTable } from '@/components/BoostTable';
 
 interface TokenHoldingModalProps {
   isOpen: boolean;
@@ -166,14 +167,10 @@ const Home: NextPage = () => {
     });
   };
 
-  const handleDeploy = async (config: TokenHoldingConfig) => {
-    try {
-      const boost = await deployBoost(config);
-      console.log("Boost deployed successfully:", boost.id);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error deploying boost:", error);
-    }
+  const handleDeploy = (config: TokenHoldingConfig) => {
+    console.log('Deploying with config:', config);
+    // Add your deployment logic here
+    setIsModalOpen(false);
   };
 
   return (
@@ -262,6 +259,7 @@ const Home: NextPage = () => {
             </tr>
           </tbody>
         </table>
+        <BoostTable />
       </main>
 
       <footer className={styles.footer}>
