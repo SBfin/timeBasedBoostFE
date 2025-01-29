@@ -37,7 +37,8 @@ async function main() {
     const budget = core.ManagedBudget(BUDGET_ADDRESS);
     console.log("Budget manager:", await budget.owner());
     // Withdraw(msg.sender, token, amount, blocksStaked)
-    const signature = "464aa953dd9ff73bc241738fdca9c4df86401c25dad2e4443fba4346ce8c09cf" as `0x${string}`;
+    // Withdraw(address,address,uint256,uint256)
+    const signature = "0xf341246adaac6f497bc2a656f546ab9e182111d630394f0c57c710a59a2cb567" as `0x${string}`;
 
     
         console.log(`Creating boost for`);
@@ -74,12 +75,17 @@ async function main() {
                 budget: budget,
                 action: eventAction,
                 incentives: [
-                    core.ERC20Incentive({
-                        asset: USDC_ADDRESS,
-                        reward: parseUnits("0.01", 6),
-                        limit: BigInt(2),
-                        strategy: StrategyType.POOL,
-                        manager: budget.assertValidAddress(),
+                    core.ERC20VariableCriteriaIncentive({
+                        asset: USDC_ADDRESS, // use zero address for native assets
+                        reward: parseUnits('0.01',6), // Amount to multiply a claim amount by, if 0n or 1 ether, user will be transferred the whole amount asserted at claim time.
+                        limit: BigInt(2), // The total budget allocated to this incentive
+                        maxReward: parseUnits('0.02',6), // The maximum amount that can be claimed at a time, if the amount extracted from the transaction given the criteria is more than this value, then the claim value will be this max reward value.
+                        criteria: {
+                          criteriaType: SignatureType.EVENT,
+                          signature: signature,
+                          fieldIndex: 2, // Field index where the dynamic claim value resides
+                          targetContract: FLEX_STAKER_ADDRESS as `0x${string}`,
+                        }
                     }),
                 ],
             }, {
