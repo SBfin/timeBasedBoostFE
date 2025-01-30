@@ -4,8 +4,8 @@ import { readContract } from '@wagmi/core';
 import { ERC20Abi } from '../ABI/ERC20';
 import { config } from '../scripts/config'; // Make sure to import your wagmi config
 import styles from '../styles/BoostTable.module.css';
-import { BoostData } from '@/types/boostData';
-import { DuneClient } from '@duneanalytics/client-sdk';
+import { privateKeyToAccount } from 'viem/accounts';
+import "dotenv/config";
 
 const formatDecimals = (value: string, decimals: number = 8): string => {
   const num = BigInt(value || '0');
@@ -20,20 +20,21 @@ export function BoostTable() {
     const fetchBoosts = async () => {
       try {
         const response = await fetch('/api/getBoosts');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text(); // Get response as text first
-        console.log('Response:', text); // Debug the raw response
-        
-        try {
-          const data = JSON.parse(text); // Then try to parse as JSON
-          setBoosts(data);
-        } catch (e) {
-          console.error('JSON parse error:', e);
-        }
+        const duneData = await response.json();
+        const boostArray = Array.isArray(duneData) ? duneData : duneData.result?.rows || [];
+
+        const bootsWithDetails = await Promise.all(boostArray.map(async (boost: any) => {
+          const response = await fetch(`/api/getBoostDetails?boostId=${boost.boostId}`);
+          if (!response.ok) {
+            console.error(`API error: ${response.status}`);
+            return null;
+          }
+          return await response.json();
+        }));
+
+        setBoosts(bootsWithDetails.filter(boost => boost !== null));
       } catch (error) {
-        console.error('Error fetching boosts:', error);
+        console.error('Error:', error);
       } finally {
         setLoading(false);
       }
@@ -60,9 +61,9 @@ export function BoostTable() {
           <tr key={boost.boostId}>
             <td>{boost.boostId}</td>
             <td>{boost.symbol || 'Unknown'}</td>
-            <td>{formatDecimals(boost.remaining)}</td>
-            <td>{formatDecimals(boost.maxReward)}</td>
-            <td>{formatDecimals(boost.totalBudget)}</td>
+            <td>{boost.remaining}</td>
+            <td>{boost.maxReward}</td>
+            <td>{boost.totalBudget}</td>
           </tr>
         ))}
       </tbody>

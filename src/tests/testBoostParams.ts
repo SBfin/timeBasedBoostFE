@@ -44,7 +44,7 @@ async function testQuery() {
     console.error('Error:', error);
   }*/
 
-  const boost = await core.getBoost(486n)
+  const boost = await core.getBoost(482n)
   const incentive = await boost.incentives.find(incentive => incentive instanceof ERC20VariableCriteriaIncentive)
   const rewardAddress = incentive?.address;
   const rewardAsset = await incentive?.asset();
